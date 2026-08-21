@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.deps import get_db, get_admin, get_user
 from app.models import User
-from app.schemas.skills import SkillResponse, SkillUpdate
+from app.schemas.skills import SkillResponse, SkillUpdate, SkillCreate
 from app.services.skills_service import SkillService
 
 
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/skills", tags=["Skills"])
 
 @router.post("/", response_model=SkillResponse, status_code=201)
 def create_skill_view(
-    data: Annotated[SkillResponse, Body()],
+    data: Annotated[SkillCreate, Body()],
     db: Annotated[Session, Depends(get_db)],
     admin: Annotated[User, Depends(get_admin)],
 ):

@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from app.models import Base
 
 
-class AuditAction(PyEnum):
+class AuditAction(str, PyEnum):
     CREATE = "create"
     UPDATE = "update"
     DELETE = "delete"
@@ -34,3 +34,7 @@ class AuditLog(Base):
     )
 
     actor: Mapped[Optional["User"]] = relationship("User")
+
+    @property
+    def actor_user_name(self) -> Optional[str]:
+        return self.actor.username if self.actor else None

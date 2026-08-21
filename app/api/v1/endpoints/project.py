@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_admin, get_db, get_user
 from app.schemas.project import (
     ProjectCreateRequest,
+    ProjectsResponse,
     ProjectResponse,
     UpdateProjectStatusRequest,
     AssignManagerRequest,
@@ -41,7 +42,7 @@ def create_project(
     return project
 
 
-@router.get("/", response_model=List[ProjectResponse], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=ProjectsResponse, status_code=status.HTTP_200_OK)
 def get_projects(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_user)],

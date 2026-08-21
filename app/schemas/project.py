@@ -51,6 +51,13 @@ class ProjectResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ProjectsResponse(BaseModel):
+    items: list[ProjectResponse] = []
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
 
 class ProjectDetailResponse(BaseModel):
     id: Optional[int]

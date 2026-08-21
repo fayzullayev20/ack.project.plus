@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.skills import Skill
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.repository.skills_repo import SkillRepository as SkillRepo
 
 

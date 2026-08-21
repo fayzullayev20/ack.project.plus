@@ -16,7 +16,7 @@ class AuditLogService:
                 detail="Only admin can view audit logs",
             )
 
-        return self.repo.get_all()
+        return self.repo.get_all(params=params)
 
     def get_by_id(self, log_id: int, current_user: User):
         if current_user.role != UserRole.ADMIN:

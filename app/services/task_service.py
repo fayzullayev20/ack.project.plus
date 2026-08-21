@@ -227,7 +227,7 @@ class TaskService:
 
     def get_tasks(self, user: User):
         if user.role == UserRole.ADMIN:
-            return self.task_repo.get_all_tasks()
+            return self.task_repo.get_all_tasks(params=params)
 
         if user.role == UserRole.MANAGER:
             return self.task_repo.get_by_manager(user.id)
