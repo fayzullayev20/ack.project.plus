@@ -17,6 +17,8 @@ services:
     build: .
     container_name: architect_api
     restart: unless-stopped
+    ports:
+      - "8000:8000"
     env_file:
       - .env
     environment:
@@ -26,6 +28,7 @@ services:
       db:
         condition: service_healthy
     volumes:
+      - .:/app
       - ./uploads:/app/uploads
 
   db:
@@ -38,6 +41,8 @@ services:
       - POSTGRES_USER=${db_user:-postgres}
       - POSTGRES_PASSWORD=${db_pass:-postgres}
       - POSTGRES_DB=${db_name:-architect_db}
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

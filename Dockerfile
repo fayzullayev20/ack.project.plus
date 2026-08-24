@@ -21,11 +21,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-# Make entrypoint executable
-RUN chmod +x /app/entrypoint.sh
-
-# Run the entrypoint script
-ENTRYPOINT ["/app/entrypoint.sh"]
-
-# Command to run the application
-CMD ["python", "run.py"]
+# Command to run the application (creates tables, seeds data, then starts uvicorn)
+CMD sh -c "python -c 'from app.db.init_db import create_tables; create_tables()' && python seed.py && python run.py"
