@@ -7,6 +7,7 @@ from app.models.project import Project
 from app.models.user import User, UserRole
 from app.models.project import ProjectStatus
 from app.models.auditlog import AuditAction
+from app.schemas.project import ProjectQueryParams
 
 
 ALLOWED_TRANSITIONS = {
@@ -78,16 +79,16 @@ class ProjectService:
 
         return project
 
-    def get_projects(self, user: User):
+    def get_projects(self, user: User, params: ProjectQueryParams):
 
         if user.role == UserRole.ADMIN:
-            return self.repo.get_all_projects()
+            return self.repo.get_all_projects(params)
 
         elif user.role == UserRole.MANAGER:
-            return self.repo.get_projects_by_manager(user.id)
+            return self.repo.get_projects_by_manager(user.id, params)
 
         elif user.role == UserRole.WORKER:
-            return self.repo.get_projects_by_user(user.id)
+            return self.repo.get_projects_by_user(user.id, params)
 
         return []
 

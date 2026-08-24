@@ -16,7 +16,7 @@ class UserRepo:
         user = User(
             username=data.username,
             email=data.email,
-            role=data.role,
+               role=data.role,
             password_hash=data.password,
         )
 
@@ -103,7 +103,7 @@ class UserRepo:
         self,
         params: UserQueryParams,
     ) -> list[User]:
-
+        
         query = self.db.query(User)
 
         if params.skill_ids:
@@ -119,7 +119,8 @@ class UserRepo:
             search_term = f"%{params.search}%"
 
             query = query.filter(
-                (User.username.ilike(search_term)) | (User.email.ilike(search_term))
+                (User.username.ilike(search_term)) |
+                (User.email.ilike(search_term))
             )
 
         sortable_fields = {
@@ -134,11 +135,11 @@ class UserRepo:
             query = query.order_by(asc(sort_column))
         else:
             query = query.order_by(desc(sort_column))
-
+            
         offset = (params.page - 1) * params.limit
 
         query = query.offset(offset).limit(params.limit)
-
+        
         users = query.all()
         total = query.count()
 
@@ -149,6 +150,7 @@ class UserRepo:
             "limit": params.limit,
             "total_pages": ceil(total / params.limit),
         }
+
 
     def get_user_by_username(self, username: str):
         return self.db.query(User).filter(User.username == username).first()

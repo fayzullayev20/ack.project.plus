@@ -22,6 +22,8 @@ from app.schemas.task import (
     UnassignWorkerRequest,
     TaskAssignmentResponse,
     TaskStatusHistoryResponse,
+    TaskQueryParams,
+    TaskLIstResponse
 )
 from app.services.task_service import TaskService
 
@@ -48,9 +50,10 @@ def create_task_view(
 def get_tasks_view(
     db: Annotated[Session, Depends(get_db)],
     user: Annotated[User, Depends(get_user)],
+    params: Annotated[TaskQueryParams, Depends()],
 ):
     service = TaskService(db)
-    tasks = service.get_tasks(user)
+    tasks = service.get_tasks(user, params)
 
     return tasks
 
@@ -125,12 +128,12 @@ def unassign_worker_view(
 def get_assignments(
     id: Annotated[int, Path()],
     db: Annotated[Session, Depends(get_db)],
-    manager: Annotated[User, Depends(get_manager)],
+    user: Annotated[User, Depends(get_user)],
 ):
     service = TaskService(db)
     return service.get_task_assignments(
         task_id=id,
-        user=manager,
+        user=user,
     )
 
 
@@ -144,19 +147,21 @@ def get_task_history(
     return service.get_task_history(task_id=id, user=user)
 
 
-@router.get("/my/tasks", response_model=list[TaskResponse])
+@router.get("/my/tasks", response_model=TaskLIstResponse)
 def get_my_tasks(
     db: Annotated[Session, Depends(get_db)],
     worker: Annotated[User, Depends(get_worker)],
+    params: Annotated[TaskQueryParams, Depends()],
 ):
     service = TaskService(db)
-    return service.get_tasks(user=worker)
+    return service.get_tasks(user=worker, params=params)
 
 
-@router.get("/manager/tasks", response_model=list[TaskResponse])
-def get_my_tasks(
+@router.get("/manager/tasks", response_model=TaskLIstResponse)
+def get_manager_tasks(
     db: Annotated[Session, Depends(get_db)],
     manager: Annotated[User, Depends(get_manager)],
+    params: Annotated[TaskQueryParams, Depends()],
 ):
     service = TaskService(db)
-    return service.get_tasks(user=manager)
+    return service.get_tasks(user=manager, params=params)

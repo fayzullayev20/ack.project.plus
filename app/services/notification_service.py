@@ -20,7 +20,9 @@ class NotificationService:
             user_id=user_id, title=title, message=message
         )
 
-    def mark_as_read(self, notification_id: int, current_user: User) -> Notification:
+    def mark_as_read(
+        self, notification_id: int, current_user: User
+    ) -> Notification:
         notification = self.repo.get_notification_by_id(notification_id)
 
         if not notification:

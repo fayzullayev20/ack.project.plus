@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.deps import get_db, get_admin
 from app.models.user import User
-from app.schemas.auditlog import AuditLogResponse
+from app.schemas.auditlog import AuditLogListResponse, AuditLogResponse, AuditLogQueryParams
 from app.services.auditlog_service import AuditLogService
 
 
@@ -16,9 +16,10 @@ router = APIRouter(prefix="/audit-logs", tags=["Audit Logs"])
 def get_audit_logs(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_admin)],
+    params: Annotated[AuditLogQueryParams, Depends()],
 ):
     service = AuditLogService(db)
-    return service.get_all(current_user)
+    return service.get_all(current_user, params)
 
 
 @router.get("/{log_id}", response_model=AuditLogResponse, status_code=200)

@@ -48,3 +48,6 @@ def seed_users(db: Session):
 
 
 seed_users(next(get_db()))
+
+
+

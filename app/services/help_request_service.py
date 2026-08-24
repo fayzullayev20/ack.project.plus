@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.repository.help_request_repo import HelpRequestRepo
@@ -6,6 +6,7 @@ from app.models.help_request import HelpRequest, HelpRequestStatus
 from app.models.user import User, UserRole
 from app.models.task import Task
 from app.services.notification_service import NotificationService
+from app.schemas.help_request import HelpRequestQueryParams
 
 
 class HelpRequestService:
@@ -38,24 +39,23 @@ class HelpRequestService:
 
         return help_request
 
-    def get_all(self, current_user: User):
-
+    def get_all(self, current_user: User, params: HelpRequestQueryParams):
         if current_user.role == UserRole.ADMIN:
-            return self.repo.get_all()
+            pass
 
         elif current_user.role == UserRole.MANAGER:
-            return [
-                r
-                for r in self.repo.get_all()
-                if r.task
-                and r.task.project
-                and r.task.project.manager_id == current_user.id
-            ]
+            params.manager_id = current_user.id
 
         elif current_user.role == UserRole.WORKER:
-            return [r for r in self.repo.get_all() if r.requested_by == current_user.id]
+            params.requested_by = current_user.id
 
-        return []
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied",
+            )
+
+        return self.repo.filter_help_requests(params)
 
     def get_by_id(self, request_id: int, current_user: User):
 

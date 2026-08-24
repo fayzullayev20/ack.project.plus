@@ -9,6 +9,7 @@ from app.schemas.skills import SkillResponse, SkillUpdate, SkillCreate
 from app.services.skills_service import SkillService
 
 
+
 router = APIRouter(prefix="/skills", tags=["Skills"])
 
 
@@ -20,8 +21,8 @@ def create_skill_view(
 ):
     service = SkillService(db)
     skill = service.create_skill(name=data.name, admin=admin)
-
-    return skill
+    
+    return skill    
 
 
 @router.get("/", response_model=list[SkillResponse])

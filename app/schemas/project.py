@@ -1,9 +1,11 @@
 from datetime import date
 
+import enum
 from typing import Optional
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, EmailStr
+from fastapi import Query
 
 from app.models.project import ProjectStatus
 from app.models.user import UserRole
@@ -110,3 +112,46 @@ class UpdateProjectRequest(BaseModel):
     name: str | None = None
     description: str | None = None
     deadline: date | None = None
+
+
+class SortOrder(str, enum.Enum):
+    asc = "asc"
+    desc = "desc"
+
+class ProjectSortField(str, enum.Enum):
+    id = "id"
+    name = "name"
+    status = "status"
+    deadline = "deadline"
+    created_at = "created_at"
+
+class ProjectQueryParams:
+    def __init__(
+        self,
+        page: int = Query(1, ge=1),
+        limit: int = Query(20, ge=1, le=100),
+        search: str | None = Query(None),
+        status: list[ProjectStatus] = Query(default_factory=list),
+        manager_id: int | None = Query(None),
+        created_from: datetime | None = Query(None),
+        created_to: datetime | None = Query(None),
+        deadline_from: datetime | None = Query(None),
+        deadline_to: datetime | None = Query(None),
+        ids: list[int] = Query(default_factory=list),
+        expired: bool | None = Query(None),
+        sort_by: ProjectSortField = Query(ProjectSortField.created_at),
+        order: SortOrder = Query(SortOrder.desc),
+    ):
+        self.page = page
+        self.limit = limit
+        self.search = search
+        self.status = status
+        self.manager_id = manager_id
+        self.created_from = created_from
+        self.created_to = created_to
+        self.deadline_from = deadline_from
+        self.deadline_to = deadline_to
+        self.ids = ids
+        self.expired = expired
+        self.sort_by = sort_by
+        self.order = order

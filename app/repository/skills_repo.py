@@ -13,24 +13,24 @@ class SkillRepository:
         self.db.commit()
         self.db.refresh(skill)
         return skill
-
+    
     def get_by_name(self, name: str) -> Skill | None:
         return self.db.query(Skill).filter(Skill.name == name).first()
-
+    
     def get_all_skills(self) -> list[Skill]:
         return self.db.query(Skill).all()
-
+    
     def get_by_id(self, id: int) -> Skill | None:
         return self.db.query(Skill).filter(Skill.id == id).first()
-
+    
     def update_skill(self, id: int, name: str) -> Skill:
         skill = self.get_by_id(id)
-
+        
         skill.name = name
         self.db.commit()
         self.db.refresh(skill)
         return skill
-
+    
     def delete_skill(self, id: int):
         skill = self.get_by_id(id)
         self.db.delete(skill)

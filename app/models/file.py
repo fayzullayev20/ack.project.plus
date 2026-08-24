@@ -36,3 +36,7 @@ class File(Base):
     )
 
     uploader: Mapped[Optional["User"]] = relationship("User")
+
+    @property
+    def url(self) -> str:
+        return f"/api/v1/files/{self.id}"

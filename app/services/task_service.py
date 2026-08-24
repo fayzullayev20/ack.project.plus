@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models import User, UserRole
-from app.schemas.task import CreateTask, UpdateTask, AssignWorkerRequest
+from app.schemas.task import CreateTask, TaskQueryParams, UpdateTask, AssignWorkerRequest
 from app.repository.task_repo import TaskRepo
 from app.repository.project_repo import ProjectRepo
 from app.repository.auditlog_repo import AuditLogRepo
@@ -32,7 +32,7 @@ class TaskService:
         if project.manager_id != current_user.id:
             raise HTTPException(403, "Not your project")
 
-        if data.deadline and data.deadline < datetime.utcnow():
+        if data.deadline and data.deadline < datetime.now(timezone.utc):
             raise HTTPException(400, "Deadline cannot be in the past")
 
         task = self.task_repo.create(
@@ -91,8 +91,12 @@ class TaskService:
         if not task:
             raise HTTPException(404, "Task not found")
 
-        if not self.task_repo.get_assignment(task_id, user.id):
-            raise HTTPException(403, "You are not assigned to this task")
+        is_assigned = self.task_repo.get_assignment(task_id, user.id) is not None
+        is_manager = user.role == UserRole.MANAGER and task.project.manager_id == user.id
+        is_admin = user.role == UserRole.ADMIN
+
+        if not (is_assigned or is_manager or is_admin):
+            raise HTTPException(403, "You do not have permission to update this task status")
 
         if task.status.is_final():
             raise HTTPException(400, "Task already completed or canceled")
@@ -217,23 +221,25 @@ class TaskService:
         if not task:
             raise HTTPException(404, "Task not found")
 
-        if user.role != UserRole.MANAGER:
-            raise HTTPException(403, "Only manager can view assignments")
-
-        if task.project.manager_id != user.id:
+        if user.role == UserRole.MANAGER and task.project.manager_id != user.id:
             raise HTTPException(403, "Not allowed")
+        elif user.role == UserRole.WORKER:
+            if not self.project_repo.is_project_member(task.project_id, user.id):
+                raise HTTPException(403, "Not allowed")
 
         return self.task_repo.get_assignments(task_id)
 
-    def get_tasks(self, user: User):
+    def get_tasks(self, user: User, params: TaskQueryParams):
         if user.role == UserRole.ADMIN:
             return self.task_repo.get_all_tasks(params=params)
 
         if user.role == UserRole.MANAGER:
-            return self.task_repo.get_by_manager(user.id)
+            params.manager_id = user.id
+            return self.task_repo.filter_tasks(params)
 
         if user.role == UserRole.WORKER:
-            return self.task_repo.get_tasks_by_user(user.id)
+            params.worker_ids = [user.id]
+            return self.task_repo.filter_tasks(params)  
 
         return []
 

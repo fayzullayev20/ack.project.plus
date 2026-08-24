@@ -15,6 +15,7 @@ from app.schemas.project import (
     ProjectProgressResponse,
     UpdateProjectRequest,
     ProjectDetailResponse,
+    ProjectQueryParams,
 )
 from app.services.project_service import ProjectService
 from app.models.user import User
@@ -46,10 +47,11 @@ def create_project(
 def get_projects(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_user)],
+    params: Annotated[ProjectQueryParams, Depends()],
 ):
     service = ProjectService(db)
 
-    projects = service.get_projects(current_user)
+    projects = service.get_projects(current_user, params)
 
     return projects
 

@@ -1,7 +1,9 @@
 from datetime import datetime
+import enum
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, FutureDatetime
+from fastapi import Query
 
 from app.models.task import TaskStatus
 from app.schemas.project import ProjectResponse
@@ -95,3 +97,52 @@ class TaskStatusHistoryResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class TaskSortField(str, enum.Enum):
+    id = "id"
+    project_id = "project_id"
+    title = "title"
+    status = "status"
+    deadline = "deadline"
+    created_at = "created_at"
+
+
+class SortOrder(str, enum.Enum):
+    asc = "asc"
+    desc = "desc"
+
+class TaskQueryParams:
+    def __init__(
+        self,
+        page: int = Query(1, ge=1),
+        limit: int = Query(20, ge=1, le=100),
+        search: str | None = Query(None),
+        project_id: int | None = Query(None),
+        manager_id: int | None = Query(None),
+        worker_ids: list[int] = Query(default_factory=list),
+        status: list[TaskStatus] = Query(default_factory=list),
+        ids: list[int] = Query(default_factory=list),
+        created_from: datetime | None = Query(None),
+        created_to: datetime | None = Query(None),
+        deadline_from: datetime | None = Query(None),
+        deadline_to: datetime | None = Query(None),
+        expired: bool | None = Query(None),
+        sort_by: TaskSortField = Query(TaskSortField.created_at),
+        order: SortOrder = Query(SortOrder.desc)
+    ):
+        self.page = page
+        self.limit = limit
+        self.search = search
+        self.project_id = project_id
+        self.manager_id = manager_id
+        self.worker_ids = worker_ids
+        self.status = status
+        self.ids = ids
+        self.created_from = created_from
+        self.created_to = created_to
+        self.deadline_from = deadline_from
+        self.deadline_to = deadline_to
+        self.expired = expired
+        self.sort_by = sort_by
+        self.order = order

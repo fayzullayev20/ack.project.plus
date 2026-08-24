@@ -63,3 +63,15 @@ class DailyReport(Base):
     user: Mapped["User"] = relationship("User")
     task: Mapped[Optional["Task"]] = relationship("Task")
     project: Mapped["Project"] = relationship("Project")
+
+    @property
+    def file_ids(self) -> List[int]:
+        return [a.file_id for a in self.attachments]
+
+    @property
+    def file_id(self) -> Optional[int]:
+        return self.attachments[0].file_id if self.attachments else None
+
+    @property
+    def files(self):
+        return [a.file for a in self.attachments]

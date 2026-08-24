@@ -28,14 +28,15 @@ class FileService:
     ):
         if user.role not in [UserRole.ADMIN, UserRole.MANAGER, UserRole.WORKER]:
             raise HTTPException(status_code=403, detail="Not allowed")
-
+        
         if not self.report_repo.get_by_id(report_id):
             raise HTTPException(status_code=404, detail="Report not found")
 
         db_file = self.file_repo.save_file(file, user)
 
         attachment = self.file_repo.make_attachment(
-            report_id=report_id, file_id=db_file.id
+            report_id=report_id,
+            file_id=db_file.id
         )
 
         return {

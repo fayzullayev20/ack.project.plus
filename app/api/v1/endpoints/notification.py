@@ -9,7 +9,7 @@ from app.schemas.notification import (
     NotificationResponse,
     UnreadCountResponse,
     MessageResponse,
-    NotificationCreate,
+    NotificationCreate
 )
 from app.models.user import User
 
